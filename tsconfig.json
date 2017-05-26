@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es2015",
+        "noImplicitAny": true,
+        "sourceMap": true
+    },
+    "include":[
+        "typings/**/*.d.ts",
+        "src/**/*.ts"
+    ]
+}
