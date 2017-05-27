@@ -14,7 +14,7 @@
             <button id="prev" v-on:click="indexFrom -= 50" v-bind:disabled="indexFrom <= 0">prev</button>
             <button id="next" v-on:click="indexFrom += 50" v-bind:disabled="indexFrom + 50 >= font.numGlyphs">next</button>
             showing {{ this.indexFrom }} to {{ Math.min(this.indexFrom + 50, this.font.glyphs.length)}}
-            <input v-model="indexFrom" placeholder="edit me">
+            <input v-model="indexFromText" placeholder="edit me" v-on:change="setIndexFrom()">
         </div>
         <div id="glyphs">
             <div class="glyph-container">
@@ -36,11 +36,16 @@
         data(){
             return {
                 indexFrom: 0,
+                indexFromText: 0,
                 name: 'not loaded',
                 selected: 0
             };
         },
         methods: {
+            setIndexFrom(e){
+                this.indexFrom = parseInt(this.indexFromText);
+                if(isNaN(this.indexFrom))this.indexFrom = 0;
+            },
             fontSummary(){
                 return this.font.glyphs.length + ' glyphs, ascender ' + this.font.ascender + ', descender ' + this.font.descender + ', units per em ' + this.font.unitsPerEm;
             },

@@ -23,6 +23,8 @@
             <iframe src="https://danielx.net/pixel-editor/" width="100%" height="100%"></iframe>
         </div>
         <div id="rightpanel">
+            <div>open font file: <input type="file" accept=".ttf,.otf" @change="fontFileChanged"> </div>
+            <div><button v-on:click="downloadFont()">download font </button></div>
             <span>fontsize: </span>
             <select v-model="fontsize">
                 <option disabled value="">pixel font size</option>
@@ -33,7 +35,7 @@
             <br>
             <span>
                 expand charset:
-                <input type="file" value="text file" accept=".txt" @change="fileChanged"/>
+                <input type="file" value="text file" accept=".txt" @change="charsetFileChanged"/>
             </span>
             <canvas style="display: none; image-rendering: pixelated;" v-bind:width="fontsize" v-bind:height="fontsize"></canvas>
             <fontview :font="font"></fontview>
@@ -51,7 +53,22 @@
             };
         },
         methods:{
-            fileChanged(e){
+            downloadFont(){
+                window.font.download();
+            },
+            fontFileChanged(e){
+                console.log(e);
+                let reader = new FileReader();
+                reader.onload = e => {
+                    let buffer = e.target.result;
+                    console.log(buffer);
+                    this.font = window.font = window.opentype.parse(buffer);
+                }
+                reader.readAsArrayBuffer(e.target.files[0]);
+
+                e.target.value = null;
+            },
+            charsetFileChanged(e){
                 console.log(e.target.files);
                 let reader = new FileReader();
                 reader.onload = e => {
@@ -77,18 +94,10 @@
                                 path: this.font.glyphs.glyphs[0].path
                             });
                             this.font.glyphs.push(nglyph.index,nglyph);
+                            this.font.glyphNames.names.push(nglyph);
+                            this.font.tables.cmap.glyphIndexMap[nglyph.unicode] = nglyph.index;
                         }
                     }
-                    //this.font = window.font = new window.opentype.Font({
-                        //familyName: this.font.names.fontFamily,
-                        //styleName: this.font.names.fontSubfamily,
-                        //unitsPerEm: this.font.unitsPerEm,
-                        //ascender: this.font.ascender,
-                        //descender: this.font.descender,
-                        //glyphs: this.font.glyphs
-                    //});
-                    //console.log('building new font');
-                    //console.log(this.font);
                 };
                 reader.readAsText(e.target.files[0], 'utf-8');
 
