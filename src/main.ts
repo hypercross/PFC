@@ -3,6 +3,7 @@ import * as opentype from "opentype.js";
 import Vue = require('vue');
 import {PNG} from 'pngjs'; 
 let App = require('./main.vue');
+import TraceMap from './tracer';
 
 declare interface AppWindow extends Window{
     opentype: any;
@@ -10,6 +11,7 @@ declare interface AppWindow extends Window{
     app: any;
     selectedGlyph: any;
     redrawSelected: Function;
+    tm: any;
 }
 let appwindow = window as AppWindow;
 appwindow.opentype = opentype;
@@ -51,18 +53,31 @@ function genPath(){
 
     let {descender, ascender} = (<any>window).font;
     let unit = (ascender - descender) / fontsize;
-    for(let x = 0; x < fontsize; x ++)
-    for(let y = 0; y < fontsize; y ++){
-        let index = x + (fontsize - 1 - y) * fontsize;
-        if(pd[index * 4 + 3] == 255){
-            path.commands.push({type: 'M', x: x * unit,        y: descender + y * unit});
-            path.commands.push({type: 'L', x: x * unit + unit, y: descender + y * unit});
-            path.commands.push({type: 'L', x: x * unit + unit, y: descender + y * unit + unit});
-            path.commands.push({type: 'L', x: x * unit,        y: descender + y * unit + unit});
-            path.commands.push({type: 'Z'});
+    path.unitsPerEm = 1024;
+
+    let tm = new TraceMap(pd, fontsize);
+    appwindow.tm = tm;
+
+    tm.fillPath(path);
+
+    for(let one of path.commands){
+        if(one.type === 'M' || one.type === 'L'){
+            one.x = one.x * unit;
+            one.y = (fontsize - one.y) * unit + descender;
         }
     }
-    path.unitsPerEm = 1024;
+
+    //for(let x = 0; x < fontsize; x ++)
+    //for(let y = 0; y < fontsize; y ++){
+        //let index = x + (fontsize - 1 - y) * fontsize;
+        //if(pd[index * 4 + 3] == 255){
+            //path.commands.push({type: 'M', x: x * unit,        y: descender + y * unit});
+            //path.commands.push({type: 'L', x: x * unit + unit, y: descender + y * unit});
+            //path.commands.push({type: 'L', x: x * unit + unit, y: descender + y * unit + unit});
+            //path.commands.push({type: 'L', x: x * unit,        y: descender + y * unit + unit});
+            //path.commands.push({type: 'Z'});
+        //}
+    //}
     return path;
 }
 
