@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify src/main.ts -t vueify -p tsify -g [ uglifyify -x .js ] | uglifyjs -c > bin/bundle.js",
-    "dev": "cd bin && budo ../src/main.ts:bundle.js --live -- -t vueify -p tsify"
+    "dev": "cd bin && budo ../src/main.ts:bundle.js --live -- -t vueify -p tsify",
+    "push": "rsync -r bin root@123.57.11.68:/var/www/pixelfontcraft -L"
   },
   "author": "",
   "license": "ISC",

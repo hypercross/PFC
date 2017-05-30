@@ -37,7 +37,7 @@ export default class TracerMap {
         let start = true;
 
         path.commands.push({type: 'M', x: tx, y: ty});
-        console.log(`move to ${tx},${ty}`);
+        //console.log(`move to ${tx},${ty}`);
         while(start || tx != x || ty != y || dir != 0){
             start = false;
         if(dir == 0){// {{{

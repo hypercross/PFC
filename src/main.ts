@@ -53,7 +53,7 @@ function genPath(){
 
     let {descender, ascender} = (<any>window).font;
     let unit = (ascender - descender) / fontsize;
-    path.unitsPerEm = 1024;
+    path.unitsPerEm = appwindow.font.unitsPerEm;
 
     let tm = new TraceMap(pd, fontsize);
     appwindow.tm = tm;
