@@ -47,7 +47,7 @@
         },
         methods:{
             emitSelect(){
-                this.$emit('clickselect', this.index);
+                this.$emit('clickselect', this.index, this.char);
             }
         },
         mounted(){

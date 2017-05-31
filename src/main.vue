@@ -88,7 +88,8 @@
 
             </div>
             <canvas style="display: none; image-rendering: pixelated;" v-bind:width="fontsize" v-bind:height="fontsize"></canvas>
-            <fontview :font="font"></fontview>
+            <fontview :font="font"
+                v-on:clickselect="select"></fontview>
         </div>
     </div>
 </template>
@@ -106,6 +107,10 @@
         methods:{
             downloadFont(){
                 window.font.download();
+            },
+            select(i, char){
+                this.editor.char = char;
+                this.editor.fit();
             },
             clear(){
                 this.editor.clear();

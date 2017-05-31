@@ -60,8 +60,9 @@
                 }
                 return res;
             },
-            select(i){
+            select(i, c){
                 this.selected = i;
+                this.$emit('clickselect', i, c);
             }
         },
         components: {
