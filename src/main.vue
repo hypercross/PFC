@@ -23,12 +23,20 @@
       margin-top: 1em;
       margin-bottom: 1em;
   }
+  canvas.pixel-editor{
+      image-rendering: pixelated;
+      width: calc(100% - 3em);
+      padding: 1em;
+      background-color: lightgrey;
+  }
 </style>
 
 <template>
     <div id="approot">
         <div id="leftpanel">
-            <iframe src="https://danielx.net/pixel-editor/" width="100%" height="100%"></iframe>
+            <!--<iframe src="https://danielx.net/pixel-editor/" width="100%" height="100%"></iframe>-->
+            <canvas class="pixel-editor" width="600" height="600"></canvas>
+            <canvas class="pixel-preview" width="60" height="60"></canvas>
         </div>
         <div id="rightpanel">
             <div class="navrow">
@@ -78,6 +86,7 @@
 
 <script>
     let fontview = require('./fontview.vue');
+    let PixelEditor = require('./peditor').default;
     module.exports = {
         data(){
             return {
@@ -136,6 +145,11 @@
 
                 e.target.value = null;
             }
+        },
+        mounted(){
+            let canvas1 = this.$el.querySelector('canvas.pixel-editor');
+            let canvas2 = this.$el.querySelector('canvas.pixel-preview');
+            let editor = new PixelEditor(canvas1, canvas2);
         },
         components: {
             fontview
