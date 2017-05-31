@@ -12,6 +12,7 @@ export default class PixelEditor {
     private _pixels: boolean[] = [];
     private _ssx = 0;
     private _ssy = 0;
+    private _sss = 0;
 
     public getPixel(x: number, y: number): boolean{
         if(x < 0 || y < 0 || x >= this.fontsize || y >= this.fontsize){
@@ -78,6 +79,15 @@ export default class PixelEditor {
                 sy = e.pageY;
                 this.refresh();
             }
+        });
+
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+
+            this._sss -= e.deltaY / 100;
+            if(this._sss < -10)this._sss = -10;
+            if(this._sss >  12)this._sss =  12;
+            this.refresh();
         });
 
         this._ctx = canvas.getContext('2d');
@@ -148,7 +158,7 @@ export default class PixelEditor {
         let char = this.char;
         let ctx = this._ctx;
 
-        let size = this._gridSize * this.fontsize;
+        let size = this._gridSize * this.fontsize * (1.0 + this._sss * 0.05);
         ctx.font = `${size}px ${this.refFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
