@@ -1,10 +1,11 @@
 // vim: set foldmethod=marker:
 import * as opentype from "opentype.js";
 import TraceMap from './tracer';
-const scale = 1;
 export default class PixelEditor {
     public char: string = '我';
     public fontsize: number = 12;
+    public refFont: string = 'Arial';
+    public fitThreshold: number = 0.2;
     private _gridSize: number;
     private _ctx: CanvasRenderingContext2D;
     private _pctx: CanvasRenderingContext2D;
@@ -31,11 +32,14 @@ export default class PixelEditor {
     }
 
     setPixelFromMouse(e: PointerEvent, mark: boolean){
-        let {clientX, clientY} = e;
+        let {pageX, pageY} = e;
         let minu = this._gridSize / 2;
-        let x = (clientX / scale - minu) / this._gridSize;
-        let y = (clientY / scale - minu) / this._gridSize;
-        this.setPixel(Math.floor(x), Math.floor(y), mark);
+        let x = (pageX - minu) / this._gridSize;
+        let y = (pageY - minu) / this._gridSize;
+        x = Math.floor(x);
+        y = Math.floor(y);
+        //console.log(`${pageX} - ${x} ${pageY} - ${y}`);
+        this.setPixel(x, y, mark);
         this.refresh();
     }
 
@@ -55,8 +59,8 @@ export default class PixelEditor {
             else if(ebtn == 2)
                 this.setPixelFromMouse(e, false);
             else if(ebtn == 1){
-                sx = e.clientX;
-                sy = e.clientY;
+                sx = e.pageX;
+                sy = e.pageY;
             }
         });
         canvas.addEventListener('pointerup', e => {
@@ -68,10 +72,10 @@ export default class PixelEditor {
             else if(ebtn == 2)
                 this.setPixelFromMouse(e, false);
             else if(ebtn == 1){
-                this._ssx += (e.clientX - sx) / scale;
-                this._ssy += (e.clientY - sy) / scale;
-                sx = e.clientX;
-                sy = e.clientY;
+                this._ssx += (e.pageX - sx);
+                this._ssy += (e.pageY - sy);
+                sx = e.pageX;
+                sy = e.pageY;
                 this.refresh();
             }
         });
@@ -89,8 +93,8 @@ export default class PixelEditor {
 
     refresh(){// {{{
         let canvas = this.canvas;
-        canvas.height = canvas.clientHeight / scale;
-        canvas.width = canvas.clientWidth / scale;
+        canvas.height = canvas.clientHeight;
+        canvas.width = canvas.clientWidth;
 
         let ctx = this._ctx;
         ctx.clearRect(0,0,canvas.width, canvas.height);
@@ -126,7 +130,7 @@ export default class PixelEditor {
         ctx.beginPath();
 
         let minu = size / 2;
-        let maxu = Math.floor(this.canvas.width / size) * size - size / 2;
+        let maxu = minu + size * this.fontsize;
         for(let x = minu; x <= maxu; x += size){
             ctx.moveTo(x,minu);
             ctx.lineTo(x,maxu);
@@ -145,7 +149,7 @@ export default class PixelEditor {
         let ctx = this._ctx;
 
         let size = this._gridSize * this.fontsize;
-        ctx.font = `${size}px Arial`;
+        ctx.font = `${size}px ${this.refFont}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "rgba(1,1,1,.4)";
@@ -170,7 +174,7 @@ export default class PixelEditor {
                 }
                 sum /= size * size * 255;
 
-                this.setPixel(x, y, sum > 0.2);
+                this.setPixel(x, y, sum > this.fitThreshold);
             }
         }
     }// }}}
