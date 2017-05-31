@@ -1,13 +1,13 @@
 // vim: set foldmethod=marker:
 export default class TracerMap {
-    constructor(private data: Uint8ClampedArray, public size: number){
+    constructor(private data: boolean[], public size: number){
     }
 
     getPixel(x: number, y: number): boolean {
         if(x < 0 || x >= this.size || y < 0 || y >= this.size)
             return false;
         let index = x + y * this.size;
-        return this.data[index * 4 + 3] == 255; 
+        return this.data[index]; 
     }
 
     fillPath(path: any){

@@ -37,6 +37,15 @@
             <!--<iframe src="https://danielx.net/pixel-editor/" width="100%" height="100%"></iframe>-->
             <canvas class="pixel-editor" width="600" height="600"></canvas>
             <canvas class="pixel-preview" width="60" height="60"></canvas>
+            <button class="mdl-button mdl-button--raised" v-on:click="clear()">
+                清空
+            </button>
+            <button class="mdl-button mdl-button--raised" v-on:click="fit()">
+                对齐阴影
+            </button>
+            <button class="mdl-button mdl-button--raised" v-on:click="save()">
+                保存
+            </button>
         </div>
         <div id="rightpanel">
             <div class="navrow">
@@ -98,6 +107,16 @@
             downloadFont(){
                 window.font.download();
             },
+            clear(){
+                this.editor.clear();
+                this.editor.refresh();
+            },
+            fit(){
+                this.editor.fit();
+            },
+            save(){
+                this.editor.updateGlyph();
+            },
             fontFileChanged(e){
                 console.log(e);
                 let reader = new FileReader();
@@ -146,10 +165,17 @@
                 e.target.value = null;
             }
         },
+        watch:{
+            fontsize(val){
+                this.editor.fontsize = parseInt(val);
+                this.editor.refresh();
+            }
+        },
         mounted(){
             let canvas1 = this.$el.querySelector('canvas.pixel-editor');
             let canvas2 = this.$el.querySelector('canvas.pixel-preview');
             let editor = new PixelEditor(canvas1, canvas2);
+            this.editor = editor;
         },
         components: {
             fontview

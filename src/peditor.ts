@@ -1,4 +1,6 @@
 // vim: set foldmethod=marker:
+import * as opentype from "opentype.js";
+import TraceMap from './tracer';
 const scale = 1;
 export default class PixelEditor {
     public char: string = '我';
@@ -7,6 +9,8 @@ export default class PixelEditor {
     private _ctx: CanvasRenderingContext2D;
     private _pctx: CanvasRenderingContext2D;
     private _pixels: boolean[] = [];
+    private _ssx = 0;
+    private _ssy = 0;
 
     public getPixel(x: number, y: number): boolean{
         if(x < 0 || y < 0 || x >= this.fontsize || y >= this.fontsize){
@@ -20,6 +24,10 @@ export default class PixelEditor {
             return;
         }
         this._pixels[x + y * this.fontsize] = v;
+    }
+
+    clear(){
+        this._pixels.length = 0;
     }
 
     setPixelFromMouse(e: PointerEvent, mark: boolean){
@@ -38,12 +46,18 @@ export default class PixelEditor {
         });
 
         let ebtn = -1;
+        let sx = 0;
+        let sy = 0;
         canvas.addEventListener('pointerdown', e => {
             ebtn = e.button;
             if(ebtn == 0)
                 this.setPixelFromMouse(e, true);
             else if(ebtn == 2)
                 this.setPixelFromMouse(e, false);
+            else if(ebtn == 1){
+                sx = e.clientX;
+                sy = e.clientY;
+            }
         });
         canvas.addEventListener('pointerup', e => {
             ebtn = -1;
@@ -53,6 +67,13 @@ export default class PixelEditor {
                 this.setPixelFromMouse(e, true);
             else if(ebtn == 2)
                 this.setPixelFromMouse(e, false);
+            else if(ebtn == 1){
+                this._ssx += (e.clientX - sx) / scale;
+                this._ssy += (e.clientY - sy) / scale;
+                sx = e.clientX;
+                sy = e.clientY;
+                this.refresh();
+            }
         });
 
         this._ctx = canvas.getContext('2d');
@@ -128,7 +149,7 @@ export default class PixelEditor {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "rgba(1,1,1,.4)";
-        ctx.fillText(char, this.canvas.width / 2, this.canvas.height / 2);
+        ctx.fillText(char, this.canvas.width / 2 + this._ssx, this.canvas.height / 2 + this._ssy);
     }// }}}
 
     fitVoxels(){// {{{
@@ -171,4 +192,30 @@ export default class PixelEditor {
             }
         }
     }// }}}
+
+    updateGlyph(){
+        let w = window as AppWindow;
+        let fontsize = w.app.fontsize;
+        let {descender, ascender} = w.font;
+        let unit = (ascender - descender) / fontsize;
+
+        let path = new (<any>opentype).Path();
+        path.unitsPerEm = w.font.unitsPerEm;
+
+        let tm = new TraceMap(this._pixels, this.fontsize);
+        w.tm = tm;
+
+        tm.fillPath(path);
+
+        for(let one of path.commands){
+            if(one.type === 'M' || one.type === 'L'){
+                one.x = one.x * unit;
+                one.y = (fontsize - one.y) * unit + descender;
+            }
+        }
+
+        let {selectedGlyph} = w;
+        selectedGlyph.path = path;
+        w.redrawSelected();
+    }
 }
