@@ -17,28 +17,40 @@ export default class TracerMap {
         for(let x = 0; x < this.size; x ++)
         for(let y = 0; y < this.size; y ++){
             let index = x + y * this.size;
-            if(this.getPixel(x, y) && !visited[index]){
-                this.floodfill(current, x, y);
+            if(!visited[index]){
+                current = [];
+                let match = this.getPixel(x, y);
+                let drawContour = this.floodfill(current, x, y, match);
 
                 for(let i = 0; i < this.size * this.size; i ++){
                     visited[i] = visited[i] || current[i];
                 }
 
-                this.fillContour(path, current, x, y);
+                if(drawContour){
+                    this.fillContour(path, current, x, y, match);
+                }
             }
         }
+        path.commands.push({type: 'Z'});
     }
 
-    fillContour(path: any, current: boolean[], x: number, y: number){
+    fillContour(path: any, current: boolean[], x: number, y: number, match: boolean){
         let tx = x;
         let ty = y;
         let d = 1;
         let dir = 0; //x+ y+ x- y-
         let start = true;
+        let initDir = 0;
 
         path.commands.push({type: 'M', x: tx, y: ty});
+        if(!match){
+            x -= 1;
+            tx -= 1;
+            dir = initDir = 1;
+        }
         //console.log(`move to ${tx},${ty}`);
-        while(start || tx != x || ty != y || dir != 0){
+        while(start || tx != x || ty != y || dir != initDir){
+            if(path.commands.length > 100)break;
             start = false;
         if(dir == 0){// {{{
             while(this.getPixel(tx + d, ty) && !this.getPixel(tx + d, ty - 1)){
@@ -114,19 +126,23 @@ export default class TracerMap {
             d = 1;
         }// }}}
         }
-        path.commands[path.commands.length - 1].type = 'Z';
     }
 
-    floodfill(mask: boolean[], x: number, y: number){
+    // return 'should we draw contour?'
+    floodfill(mask: boolean[], x: number, y: number, match: boolean): boolean{
         let index = x + y * this.size;
-        if(mask[index])return;
-        if(!this.getPixel(x,y))return;
+        if(x < 0 || x >= this.size || y < 0 || y >= this.size){
+            if(!match)return false;
+        }
+        if(mask[index])return true;
+        if(this.getPixel(x,y) != match)return true;
 
         mask[index] = true;
 
-        this.floodfill(mask, x+1, y);
-        this.floodfill(mask, x-1, y);
-        this.floodfill(mask, x, y+1);
-        this.floodfill(mask, x, y-1);
+        let a = this.floodfill(mask, x+1, y, match);
+        let b = this.floodfill(mask, x-1, y, match);
+        let c = this.floodfill(mask, x, y+1, match);
+        let d = this.floodfill(mask, x, y-1, match);
+        return a && b && c && d;
     }
 }
