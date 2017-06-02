@@ -17,12 +17,8 @@
     "tsify": "^3.0.1",
     "typescript": "^2.3.3",
     "uglify-es": "^3.0.11",
-    "uglifyify": "^3.0.4"
-  },
-  "dependencies-dev": {
-    "material-design-lite": "^1.3.0",
+    "uglifyify": "^3.0.4",
     "opentype.js": "^0.7.1",
-    "pngjs": "^3.2.0",
     "vue": "^2.3.3",
     "vueify": "^9.4.1"
   }
