@@ -12,7 +12,7 @@
       <span class="mdl-layout-title" style="margin-top: 0.5em;">字体属性: {{ fontSummary() }}</span>
         <div class="pagination">
             <button class="mdl-button mdl-button--raised" id="prev" v-on:click="indexFrom -= 50" v-bind:disabled="indexFrom <= 0">上一页</button>
-            <button class="mdl-button mdl-button--raised" id="next" v-on:click="indexFrom += 50" v-bind:disabled="indexFrom + 50 >= font.numGlyphs">下一页</button>
+            <button class="mdl-button mdl-button--raised" id="next" v-on:click="indexFrom += 50" v-bind:disabled="indexFrom + 50 >= font.glyphs.length">下一页</button>
             <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="indexInput"
             v-model="indexFromText" v-on:change="setIndexFrom()" style="width: 6em;">
             显示第{{ this.indexFrom }}到第{{ Math.min(this.indexFrom + 50, this.font.glyphs.length)}}个字符

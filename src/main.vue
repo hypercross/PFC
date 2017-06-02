@@ -7,6 +7,7 @@
       justify-content: center;
   }
   #leftpanel{
+      max-width: 800px;
       width: 50%;
   }
   #leftpanel > iframe{
