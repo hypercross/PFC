@@ -149,7 +149,6 @@
                 e.target.value = null;
             },
             charsetFileChanged(e){
-                console.log(e.target.files);
                 let reader = new FileReader();
                 reader.onload = e => {
                     let text = e.target.result;

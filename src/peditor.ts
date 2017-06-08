@@ -211,7 +211,7 @@ export default class PixelEditor {
         let w = window as AppWindow;
         let fontsize = w.app.fontsize;
         let {descender, ascender} = w.font;
-        let unit = (ascender - descender) / fontsize;
+        let unit = Math.min(ascender - descender, w.font.unitsPerEm) / fontsize;
 
         let path = new (<any>opentype).Path();
         path.unitsPerEm = w.font.unitsPerEm;
@@ -221,14 +221,24 @@ export default class PixelEditor {
 
         tm.fillPath(path);
 
+        let minx = fontsize * unit;
+        let maxx = 0;
         for(let one of path.commands){
             if(one.type === 'M' || one.type === 'L'){
                 one.x = one.x * unit;
+                minx = Math.min(minx, one.x);
+                maxx = Math.max(maxx, one.x);
                 one.y = (fontsize - one.y) * unit + descender;
+            }
+        }
+        for(let one of path.commands){
+            if(one.type === 'M' || one.type === 'L'){
+                one.x -= minx;
             }
         }
 
         let {selectedGlyph} = w;
+        selectedGlyph.advanceWidth = maxx - minx + unit;
         selectedGlyph.path = path;
         w.redrawSelected();
     }
