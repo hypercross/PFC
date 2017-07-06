@@ -32,7 +32,7 @@ export default class PixelEditor {
         this._pixels.length = 0;
     }
 
-    setPixelFromMouse(e: PointerEvent, mark: boolean){
+    setPixelFromMouse(e: MouseEvent, mark: boolean){
         let {pageX, pageY} = e;
         let minu = this._gridSize / 2;
         let x = (pageX - minu) / this._gridSize;
@@ -53,7 +53,7 @@ export default class PixelEditor {
         let ebtn = -1;
         let sx = 0;
         let sy = 0;
-        canvas.addEventListener('pointerdown', e => {
+        canvas.addEventListener('mousedown', e => {
             ebtn = e.button;
             if(ebtn == 0)
                 this.setPixelFromMouse(e, true);
@@ -64,10 +64,10 @@ export default class PixelEditor {
                 sy = e.pageY;
             }
         });
-        canvas.addEventListener('pointerup', e => {
+        canvas.addEventListener('mouseup', e => {
             ebtn = -1;
         });
-        canvas.addEventListener('pointermove', e => {
+        canvas.addEventListener('mousemove', e => {
             if(ebtn == 0)
                 this.setPixelFromMouse(e, true);
             else if(ebtn == 2)
