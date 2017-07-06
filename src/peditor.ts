@@ -34,6 +34,9 @@ export default class PixelEditor {
 
     setPixelFromMouse(e: MouseEvent, mark: boolean){
         let {pageX, pageY} = e;
+        pageX -= (e.target as HTMLCanvasElement).offsetLeft;
+        pageY -= (e.target as HTMLCanvasElement).offsetTop;
+
         let minu = this._gridSize / 2;
         let x = (pageX - minu) / this._gridSize;
         let y = (pageY - minu) / this._gridSize;

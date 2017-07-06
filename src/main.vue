@@ -27,7 +27,6 @@
   canvas.pixel-editor{
       image-rendering: pixelated;
       width: calc(100% - 3em);
-      padding: 1em;
       background-color: lightgrey;
   }
 </style>
