@@ -77,7 +77,13 @@
                 <button class="mdl-button mdl-button--raised" v-on:click="downloadFont()">
                     下载字体
                 </button>
+                <button class="mdl-button mdl-button--raised" v-on:click="saveFontLocal()">
+                    保存字体到浏览器缓存
+                </button>
 
+                <button class="mdl-button mdl-button--raised" v-on:click="loadFontLocal()">
+                    从浏览器缓存加载字体
+                </button>
                 <span>
                     <label for="fileCharset">
                         <span class="mdl-button mdl-button--raised">
@@ -107,8 +113,28 @@
 </template>
 
 <script>
+    function url2array(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        return u8arr;
+    }
+
+    function blob2url(blob, callback){
+        var fr = new FileReader();
+        fr.onload = (e) => {
+            callback(e.target.result);
+        }
+        fr.readAsDataURL(blob);
+    }
+
     let fontview = require('./fontview.vue');
     let PixelEditor = require('./peditor').default;
+    let main = require('./main');
     module.exports = {
         data(){
             return {
@@ -120,7 +146,17 @@
         },
         methods:{
             downloadFont(){
-                window.font.download();
+                var familyName = window.font.getEnglishName('fontFamily');
+                var styleName = window.font.getEnglishName('fontSubfamily');
+                var date = new Date().toJSON();
+
+                window.font.download(familyName + '-' + styleName + '-' + date + '.otf');
+            },
+            saveFontLocal(){
+                main.saveFontToLocalStorage();
+            },
+            loadFontLocal(){
+                main.loadFontFromLocalStorage();
             },
             select(i, char){
                 this.editor.char = char;
