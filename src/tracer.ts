@@ -60,7 +60,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+d, y: ty});
             let outer = this.getPixel(tx + d, ty - 1);
             let inner = this.getPixel(tx + d, ty);
-            if(!inner){
+            if(!inner && (match || !outer)){
                 tx = tx + d - 1;
                 ty = ty;
                 dir = 1;
@@ -78,7 +78,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+1, y: ty+d});
             let outer = this.getPixel(tx + 1, ty + d);
             let inner = this.getPixel(tx    , ty + d);
-            if(!inner){
+            if(!inner && (match || !outer)){
                 ty = ty + d - 1;
                 tx = tx;
                 dir = 2;
@@ -96,7 +96,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+1-d, y: ty+1});
             let outer = this.getPixel(tx - d, ty + 1);
             let inner = this.getPixel(tx - d, ty);
-            if(!inner){
+            if(!inner && (match || !outer)){
                 tx = tx - d + 1;
                 ty = ty;
                 dir = 3;
@@ -114,7 +114,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx, y: ty+1-d});
             let outer = this.getPixel(tx - 1, ty - d);
             let inner = this.getPixel(tx    , ty - d);
-            if(!inner){
+            if(!inner && (match || !outer)){
                 ty = ty - d + 1;
                 tx = tx;
                 dir = 0;
