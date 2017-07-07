@@ -7,7 +7,7 @@ export default class TracerMap {
         if(x < 0 || x >= this.size || y < 0 || y >= this.size)
             return false;
         let index = x + y * this.size;
-        return this.data[index]; 
+        return this.data[index] || false;
     }
 
     fillPath(path: any){
@@ -19,7 +19,7 @@ export default class TracerMap {
             let index = x + y * this.size;
             if(!visited[index]){
                 current = [];
-                let match = this.getPixel(x, y);
+                let match = this.getPixel(x, y) || false;
                 let drawContour = this.floodfill(current, x, y, match);
 
                 for(let i = 0; i < this.size * this.size; i ++){
@@ -60,7 +60,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+d, y: ty});
             let outer = this.getPixel(tx + d, ty - 1);
             let inner = this.getPixel(tx + d, ty);
-            if(!inner && (match || !outer)){
+            if(!inner && !outer){
                 tx = tx + d - 1;
                 ty = ty;
                 dir = 1;
@@ -78,7 +78,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+1, y: ty+d});
             let outer = this.getPixel(tx + 1, ty + d);
             let inner = this.getPixel(tx    , ty + d);
-            if(!inner && (match || !outer)){
+            if(!inner && !outer){
                 ty = ty + d - 1;
                 tx = tx;
                 dir = 2;
@@ -96,7 +96,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx+1-d, y: ty+1});
             let outer = this.getPixel(tx - d, ty + 1);
             let inner = this.getPixel(tx - d, ty);
-            if(!inner && (match || !outer)){
+            if(!inner && !outer){
                 tx = tx - d + 1;
                 ty = ty;
                 dir = 3;
@@ -114,7 +114,7 @@ export default class TracerMap {
             path.commands.push({type: 'L', x: tx, y: ty+1-d});
             let outer = this.getPixel(tx - 1, ty - d);
             let inner = this.getPixel(tx    , ty - d);
-            if(!inner && (match || !outer)){
+            if(!inner && !outer){
                 ty = ty - d + 1;
                 tx = tx;
                 dir = 0;
@@ -139,10 +139,14 @@ export default class TracerMap {
 
         mask[index] = true;
 
-        let a = this.floodfill(mask, x+1, y, match);
-        let b = this.floodfill(mask, x-1, y, match);
-        let c = this.floodfill(mask, x, y+1, match);
-        let d = this.floodfill(mask, x, y-1, match);
-        return a && b && c && d;
+        let flag = true;
+        for(let dx = -1; dx <= 1; dx ++)
+        for(let dy = -1; dy <= 1; dy ++){
+            let type = Math.abs(dx) + Math.abs(dy);
+            if(type == 0)continue;
+            if(type == 2 && !match)continue;
+            flag = this.floodfill(mask, x+dx, y+dy, match) && flag;
+        }
+        return flag;
     }
 }
