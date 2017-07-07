@@ -62,3 +62,19 @@ export function saveFontToLocalStorage(){
         localStorage.setItem("fontfile", result);
     });
 }
+
+export function saveAsDownload(data: ArrayBuffer, name: string, type: string) {
+     if (data != null && navigator.msSaveBlob)
+        return navigator.msSaveBlob(new Blob([data], { type }), name);
+
+    var a = document.createElement('a');
+    a.style.display = "none";
+
+    var url = window.URL.createObjectURL(new Blob([data], {type}));
+    a.setAttribute("href", url);
+    a.setAttribute("download", name);
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+}

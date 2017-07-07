@@ -148,8 +148,10 @@
                 var familyName = window.font.getEnglishName('fontFamily');
                 var styleName = window.font.getEnglishName('fontSubfamily');
                 var date = new Date().toJSON();
+                var name = familyName + '-' + styleName + '-' + date + '.otf';
 
-                window.font.download(familyName + '-' + styleName + '-' + date + '.otf');
+                main.saveAsDownload(window.font.toArrayBuffer(), name, 'mime');
+                // window.font.download(familyName + '-' + styleName + '-' + date + '.otf');
             },
             saveFontLocal(){
                 main.saveFontToLocalStorage();
