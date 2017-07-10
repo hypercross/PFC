@@ -112,25 +112,6 @@
 </template>
 
 <script>
-    function url2array(dataurl) {
-        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-
-        while(n--){
-            u8arr[n] = bstr.charCodeAt(n);
-        }
-
-        return u8arr;
-    }
-
-    function blob2url(blob, callback){
-        var fr = new FileReader();
-        fr.onload = (e) => {
-            callback(e.target.result);
-        }
-        fr.readAsDataURL(blob);
-    }
-
     let fontview = require('./fontview.vue');
     let PixelEditor = require('./peditor').default;
     let main = require('./main');
@@ -150,7 +131,8 @@
                 var date = new Date().toJSON();
                 var name = familyName + '-' + styleName + '-' + date + '.otf';
 
-                main.saveAsDownload(window.font.toArrayBuffer(), name, 'mime');
+                var fresh = main.makeCleanFont(window.font);
+                main.saveAsDownload(fresh.toArrayBuffer(), name, 'mime');
                 // window.font.download(familyName + '-' + styleName + '-' + date + '.otf');
             },
             saveFontLocal(){
@@ -186,38 +168,7 @@
                 e.target.value = null;
             },
             charsetFileChanged(e){
-                let reader = new FileReader();
-                reader.onload = e => {
-                    let text = e.target.result;
-
-                    let charset = new Set;
-                    charset.add('\n');
-                    charset.add('\r');
-                    for(let one of text){
-                        let glyph = this.font.charToGlyph(one);
-                        let converted = String.fromCharCode(glyph.unicode);
-                        if(converted != one && !charset.has(one)){
-                            charset.add(one);
-
-                            console.log('new char: ' +  one + ': ' + one.charCodeAt(0) + ', replaced by ' + glyph.unicode + ': ' + converted);
-                            let nglyph = new window.opentype.Glyph({
-                                index: this.font.glyphs.length,
-                                name: one,
-                                unicode: one.charCodeAt(0),
-                                unicodes: [one.charCodeAt(0)],
-                                font: this.font,
-                                advanceWidth: this.font.unitsPerEm,
-                                path: this.font.glyphs.glyphs[0].path
-                            });
-                            this.font.glyphs.push(nglyph.index,nglyph);
-                            this.font.glyphNames.names.push(nglyph);
-                            this.font.tables.cmap.glyphIndexMap[nglyph.unicode] = nglyph.index;
-                        }
-                    }
-                };
-                reader.readAsText(e.target.files[0], 'utf-8');
-
-                e.target.value = null;
+              main.loadCharset(e);
             }
         },
         watch:{

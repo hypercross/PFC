@@ -78,3 +78,62 @@ export function saveAsDownload(data: ArrayBuffer, name: string, type: string) {
     window.URL.revokeObjectURL(url);
     a.remove();
 }
+
+export function makeCleanFont(font: any) {
+    const input = font.glyphs.glyphs;
+    const glyphs: any = [];
+    console.log(input, input.length);
+    for(let i = 0; input[i]; i ++){
+        const glyph = input[i];
+        if(glyph.path && glyph.path.commands.length > 0)
+            glyphs.push(glyph);
+    }
+
+    const familyName = font.names.fontFamily.en;
+    const styleName = font.names.fontSubfamily.en;
+    const {unitsPerEm, ascender, descender} = font;
+
+    const newFont = new opentype.Font({
+        familyName, styleName, unitsPerEm, ascender, descender, glyphs
+    });
+
+    console.log(familyName, styleName, unitsPerEm, ascender, descender, glyphs);
+
+    return newFont;
+}
+
+export function loadCharset(e: any){
+    const font = appwindow.font;
+    let reader = new FileReader();
+    reader.onload = e => {
+        let text = (e.target as any).result as string;
+
+        let charset = new Set;
+        charset.add('\n');
+        charset.add('\r');
+        for(let one of text){
+            let glyph = font.charToGlyph(one);
+            let converted = String.fromCharCode(glyph.unicode);
+            if(converted != one && !charset.has(one)){
+                charset.add(one);
+
+                // console.log('new char: ' +  one + ': ' + one.charCodeAt(0) + ', replaced by ' + glyph.unicode + ': ' + converted);
+                let nglyph = new opentype.Glyph({
+                    index: font.glyphs.length,
+                    name: one,
+                    unicode: one.charCodeAt(0),
+                    unicodes: [one.charCodeAt(0)],
+                    font: font,
+                    advanceWidth: font.unitsPerEm,
+                    path: font.glyphs.glyphs[0].path
+                });
+                font.glyphs.push(nglyph.index, nglyph);
+                font.glyphNames.names.push(nglyph);
+                font.tables.cmap.glyphIndexMap[nglyph.unicode] = nglyph.index;
+            }
+        }
+    };
+    reader.readAsText(e.target.files[0], 'utf-8');
+
+    e.target.value = null;
+}
