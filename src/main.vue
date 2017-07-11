@@ -98,7 +98,9 @@
                     <select v-model="fontsize" style="vertical-align: middle; background: transparent; border: none">
                         <option disabled value="">pixel font size</option>
                         <option value='8'>8px</option>
+                        <option value='9'>9px</option>
                         <option value='10'>10px</option>
+                        <option value='11'>11px</option>
                         <option value='12'>12px</option>
                     </select>
                 </div>
