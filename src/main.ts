@@ -166,7 +166,7 @@ export function mergeFontList(files: File[]){
                 const full = glyph.path && glyph.path.commands.length > 0;
                 if(!full)continue;
 
-                let unicode = `${glyph.unicode}`;
+                let unicode = glyph.unicode.toString(16);
                 while(unicode.length < 4)unicode = '0' + unicode;
                 glyph.name = `uni${unicode}`;
 
