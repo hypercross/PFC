@@ -137,3 +137,58 @@ export function loadCharset(e: any){
 
     e.target.value = null;
 }
+
+function readFile(file: File){
+    return new Promise<ArrayBuffer>(resolve => {
+        let reader = new FileReader();
+        reader.onload = e => {
+            let buffer = (e.target as any).result;
+            resolve(buffer);
+        }
+        reader.readAsArrayBuffer(file);
+    })
+}
+
+export function mergeFontList(files: File[]){
+    if(!files || files.length <= 0)throw 'no font man!';
+    Promise.all(files.map(readFile)).then(data => {
+        const fonts = data.map(buffer => appwindow.opentype.parse(buffer));
+
+        const glyphs: any = [];
+        const used: {[key: string]: boolean} = {};
+
+        for(const font of fonts){
+            let repeat = 0;
+            for(let i = 0; i < font.glyphs.length; i ++){
+                const glyph = font.glyphs.glyphs[i];
+                if(!glyph)continue;
+
+                const full = glyph.path && glyph.path.commands.length > 0;
+                if(!full)continue;
+
+                let unicode = `${glyph.unicode}`;
+                while(unicode.length < 4)unicode = '0' + unicode;
+                glyph.name = `uni${unicode}`;
+
+                if(used[glyph.name]){
+                    repeat++;
+                    continue;
+                }
+                used[glyph.name] = true;
+                glyphs.push(glyph);
+            }
+            if(repeat > 0)alert(`字体${font.names.fullName.en}包含${repeat}个重复字符，重复字符将被忽略`);
+        }
+
+        const font = fonts[0];
+        const familyName = font.names.fontFamily.en;
+        const styleName = font.names.fontSubfamily.en;
+        const {unitsPerEm, ascender, descender} = font;
+
+        const newFont = new opentype.Font({
+            familyName, styleName, unitsPerEm, ascender, descender, glyphs
+        }) as any;
+        console.log(newFont);
+        saveAsDownload(newFont.toArrayBuffer(), 'merged-font.otf', 'mime');
+    });
+}

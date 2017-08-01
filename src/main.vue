@@ -91,6 +91,9 @@
                     </label>
                     <input type="file" value="text file" accept=".txt" @change="charsetFileChanged" id="fileCharset"/>
                 </span>
+                <button class="mdl-button mdl-button--raised" v-on:click="openMerger()">
+                    合并字体
+                </button>
 
                 <br>
                 <div class="mdl-chip" style="vertical-align: bottom">
@@ -109,11 +112,13 @@
             <canvas style="display: none; image-rendering: pixelated;" v-bind:width="fontsize" v-bind:height="fontsize"></canvas>
             <fontview :font="font"
                 v-on:clickselect="select"></fontview>
+            <merger/>
         </div>
     </div>
 </template>
 
 <script>
+    let merger = require('./merger.vue');
     let fontview = require('./fontview.vue');
     let PixelEditor = require('./peditor').default;
     let main = require('./main');
@@ -171,6 +176,9 @@
             },
             charsetFileChanged(e){
               main.loadCharset(e);
+            },
+            openMerger(){
+                let merger = document.querySelector('dialog').showModal();
             }
         },
         watch:{
@@ -195,7 +203,7 @@
             editor.refresh();
         },
         components: {
-            fontview
+            fontview, merger
         }
     }
 </script>
