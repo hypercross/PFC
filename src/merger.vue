@@ -21,6 +21,7 @@
     </div>
     <div class="mdl-dialog__actions">
       <button type="button" class="mdl-button" v-on:click="merge()">下载合并后的字体</button>
+      <button type="button" class="mdl-button" v-on:click="clear()">清空</button>
       <button type="button" class="mdl-button" v-on:click="close()">关闭</button>
     </div>
   </dialog>
@@ -41,6 +42,9 @@
             },
             close(){
                 document.querySelector('dialog').close();
+            },
+            clear(){
+                this.files = [];
             },
             onFileChange(e, index){
                 var file = e.target.files[0];
