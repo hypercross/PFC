@@ -159,12 +159,19 @@ export function mergeFontList(files: File[]){
 
         for(const font of fonts){
             let repeat = 0;
+            let empty = 0;
             for(let i = 0; i < font.glyphs.length; i ++){
                 const glyph = font.glyphs.glyphs[i];
                 if(!glyph)continue;
 
                 const full = glyph.path && glyph.path.commands.length > 0;
                 if(!full)continue;
+                if(glyph.path.commands.length == 12 &&
+                   glyph.path.commands[0].x == 306 &&
+                   glyph.path.commands[1].x == 34){
+                    empty++;
+                    continue;
+                }
 
                 if(!glyph.unicode)continue;
                 let unicode = glyph.unicode.toString(16).toUpperCase();
@@ -178,7 +185,8 @@ export function mergeFontList(files: File[]){
                 used[glyph.name] = true;
                 glyphs.push(glyph);
             }
-            if(repeat > 0)alert(`字体${font.names.fullName.en}包含${repeat}个重复字符，重复字符将被忽略`);
+            if(repeat > 0)alert(`字体${font.names.fullName.en}包含${repeat}个重复字符，将被忽略`);
+            if(empty > 0)alert(`字体${font.names.fullName.en}包含${empty}个口式空字符，将被忽略`);
         }
 
         const font = fonts[0];
